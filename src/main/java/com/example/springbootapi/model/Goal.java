@@ -30,7 +30,7 @@ public class Goal {
 
     // @Enumerated maps the DB enum to the UPPER_CASE Java enums
     @Enumerated(EnumType.STRING)
-    private Status status = Status.NOT_STARTED;
+    private Status status;
 
     @Min(0)
     @Max(100)
