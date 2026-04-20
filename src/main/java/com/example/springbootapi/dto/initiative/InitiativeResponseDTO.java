@@ -1,3 +1,10 @@
 package com.example.springbootapi.dto.initiative;
 
-public class InitiativeResponseDTO {}
+import java.time.OffsetDateTime;
+
+public class InitiativeResponseDTO {
+    private int id;
+    private String initiative;
+    private OffsetDateTime createdAt;
+    private int goalId;
+}
