@@ -1,5 +1,7 @@
 package com.example.springbootapi.model;
 
+import com.example.springbootapi.enums.Priority;
+import com.example.springbootapi.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -17,10 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Goal {
-    // Enums
-    public enum Status { NOT_STARTED, IN_PROGRESS, FINISHED }
-    public enum Priority { LOW, MEDIUM, HIGH }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
