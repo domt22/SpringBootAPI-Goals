@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class GoalNotFoundException extends RuntimeException {
-    public GoalNotFoundException(int id) {
+    public GoalNotFoundException(Long id) {
         super("Goal with id " + id + " not found");
     }
 }

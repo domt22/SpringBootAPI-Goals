@@ -7,7 +7,12 @@ import com.example.springbootapi.model.Goal;
 import com.example.springbootapi.repo.GoalRepository;
 import com.example.springbootapi.repo.InitiativeRepository;
 import com.example.springbootapi.utils.mappers.GoalMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,22 +27,26 @@ public class GoalService {
     private final GoalMapper goalMapper;
 
     // GET: /goals
-    public List<GoalResponseDTO> getAllGoals() {
-        return goalRepository.findAll()
-                .stream()
-                .map(goalMapper::toGoalResponseDTO).
-                toList();
+    @Transactional(readOnly = true)
+    public Page<GoalResponseDTO> getAllGoals(Pageable pageable) {
+        // If no sort is specified, sort by id in descending order by default
+        Pageable sortedPageable = pageable.getSort().isUnsorted()
+                ? PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("id").descending()) : pageable;
+
+        return goalRepository.findAll(sortedPageable)
+                .map(goalMapper::toGoalResponseDTO);
     }
 
     // GET: /goals/{id}
-    public GoalResponseDTO getGoalById(int id) {
+    @Transactional(readOnly = true)
+    public GoalResponseDTO getGoalById(Long id) {
         Goal goal = goalRepository.findById(id).orElseThrow(() -> new GoalNotFoundException(id)); // Custom Exception
         return goalMapper.toGoalResponseDTO(goal);
     }
 
     // POST: /goals
     @Transactional
-    public GoalResponseDTO createGoal(GoalRequestDTO requestDTO) {
+    public GoalResponseDTO createGoal(@Valid GoalRequestDTO requestDTO) {
         Goal goal = goalMapper.toGoal(requestDTO);
         Goal saved = goalRepository.save(goal);
         return goalMapper.toGoalResponseDTO(saved);
@@ -45,26 +54,23 @@ public class GoalService {
 
     // PUT: /goals/{id}
     @Transactional
-    public GoalResponseDTO updateGoal(int id, GoalRequestDTO requestDTO) {
-        return goalRepository.findById(id).map(existing -> {
-            existing.setTitle(requestDTO.getTitle());
-            existing.setDescription(requestDTO.getDescription());
-            existing.setCompleteBy(requestDTO.getCompleteBy());
-            existing.setStatus(requestDTO.getStatus());
-            existing.setProgress(requestDTO.getProgress());
-            existing.setPriority(requestDTO.getPriority());
-            Goal updated = goalRepository.save(existing);
-            return goalMapper.toGoalResponseDTO(updated);
-        })
-                .orElseThrow(() -> new GoalNotFoundException(id)); // Custom Exception
+    public GoalResponseDTO updateGoal(Long id, @Valid GoalRequestDTO requestDTO) {
+        Goal existingGoal = goalRepository.findById(id)
+                .orElseThrow(() -> new GoalNotFoundException(id));
+        goalMapper.updateGoalFromDTO(requestDTO, existingGoal);
+        Goal updatedGoal = goalRepository.save(existingGoal);
+        return goalMapper.toGoalResponseDTO(updatedGoal);
     }
 
     // DELETE: /goals/{id}
-    public void deleteGoal(int id) {
-        if (!goalRepository.existsById(id)) {
+    @Transactional
+    public void deleteGoal(Long id) {
+        try {
+            goalRepository.deleteById(id);
+        }
+        catch (Exception e) {
             throw new GoalNotFoundException(id);
         }
-        goalRepository.deleteById(id);
     }
 
 }
