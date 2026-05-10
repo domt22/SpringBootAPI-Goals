@@ -9,6 +9,7 @@ import com.example.springbootapi.repo.InitiativeRepository;
 import com.example.springbootapi.utils.mappers.GoalMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,14 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor // Makes Constructor with final fields
 public class GoalService {
     private final GoalRepository goalRepository;
-    private final InitiativeRepository initiativeRepository;
     private final GoalMapper goalMapper;
 
     // GET: /goals
@@ -68,7 +65,7 @@ public class GoalService {
         try {
             goalRepository.deleteById(id);
         }
-        catch (Exception e) {
+        catch (EmptyResultDataAccessException e) {
             throw new GoalNotFoundException(id);
         }
     }
