@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +23,11 @@ public class GoalController {
     public ResponseEntity<Page<GoalResponseDTO>> getAllGoals(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<GoalResponseDTO> goals = goalService.getAllGoals(pageable);
         return ResponseEntity.ok(goals);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GoalResponseDTO> getGoalById(@PathVariable Long id) {
+        GoalResponseDTO goal = goalService.getGoalById(id);
+        return ResponseEntity.ok(goal);
     }
 }
