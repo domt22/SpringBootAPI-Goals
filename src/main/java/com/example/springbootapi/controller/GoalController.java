@@ -49,4 +49,11 @@ public class GoalController {
 
         return ResponseEntity.created(location).body(saved);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<GoalResponseDTO> updateGoal(@PathVariable Long id, @Valid @RequestBody GoalRequestDTO goalRequestDTO) {
+        GoalResponseDTO updated = goalService.updateGoal(id, goalRequestDTO);
+        return ResponseEntity.ok(updated);
+    }
+
 }
