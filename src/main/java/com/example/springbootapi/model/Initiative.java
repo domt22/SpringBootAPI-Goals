@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "initiatives")
 @Data
 @NoArgsConstructor
@@ -19,6 +22,8 @@ public class Initiative {
     private String initiative;
 
     // Use OffsetDateTime, it uses DateTime with the addition of an offset from UTC.
+    @CreatedDate
+    @Column(updatable = false,  nullable = false)
     private OffsetDateTime createdAt;
 
     // Many initiatives per goal
