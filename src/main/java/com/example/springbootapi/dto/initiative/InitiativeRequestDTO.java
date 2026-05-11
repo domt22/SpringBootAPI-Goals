@@ -1,5 +1,5 @@
 package com.example.springbootapi.dto.initiative;
 
-public class InitiativeRequestDTO {
-    private String initiative;
-}
+public record InitiativeRequestDTO (
+    String initiative
+) {}
