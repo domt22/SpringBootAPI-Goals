@@ -13,7 +13,7 @@ public record GoalRequestDTO (
     @Size(max = 100, message = "Title must be less than 100 characters.")
     String title,
     String description,
-    @NotBlank(message = "Complete by cannot be blank")
+    @NotNull
     @FutureOrPresent(message = "Complete by must be in the future.")
     OffsetDateTime completeBy,
     Status status,
