@@ -19,7 +19,8 @@ public record GoalRequestDTO (
     Status status,
     @Min(value = 0, message = "Progress must be between 0 and 100.")
     @Max(value = 100, message = "Progress must be between 0 and 100.")
-    int progress,
+    Integer progress,
+    @NotNull(message = "Priority is required.")
     Priority priority,
     List<InitiativeRequestDTO> initiatives
 ) {}
