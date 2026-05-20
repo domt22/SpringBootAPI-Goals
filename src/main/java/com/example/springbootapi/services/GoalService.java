@@ -2,11 +2,15 @@ package com.example.springbootapi.services;
 
 import com.example.springbootapi.dto.goal.GoalRequestDTO;
 import com.example.springbootapi.dto.goal.GoalResponseDTO;
+import com.example.springbootapi.dto.initiative.InitiativeRequestDTO;
+import com.example.springbootapi.dto.initiative.InitiativeResponseDTO;
 import com.example.springbootapi.exception.GoalNotFoundException;
 import com.example.springbootapi.model.Goal;
+import com.example.springbootapi.model.Initiative;
 import com.example.springbootapi.repo.GoalRepository;
 import com.example.springbootapi.repo.InitiativeRepository;
 import com.example.springbootapi.utils.mappers.GoalMapper;
+import com.example.springbootapi.utils.mappers.InitiativeMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,11 +21,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Stream;
+
 @Service
 @RequiredArgsConstructor // Makes Constructor with final fields
 public class GoalService {
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
+    private final InitiativeRepository initiativeRepository;
+    private final InitiativeMapper initiativeMapper;
 
     // GET: /goals
     @Transactional(readOnly = true)
@@ -68,6 +76,21 @@ public class GoalService {
         catch (EmptyResultDataAccessException e) {
             throw new GoalNotFoundException(id);
         }
+    }
+
+    // POST: /goals/{id}/initiatives
+    @Transactional
+    public InitiativeResponseDTO addInitiative(Long id, @Valid InitiativeRequestDTO requestDTO) {
+        // Check if the goal exists
+        Goal goal = goalRepository.findById(id)
+                .orElseThrow(() -> new GoalNotFoundException(id));
+        // Convert Request DTO to Entity
+        Initiative initiative = initiativeMapper.toInitiative(requestDTO);
+        // Set Goal to the Initiative
+        initiative.setGoal(goal);
+        // Save Initiative
+        initiativeRepository.save(initiative);
+        return initiativeMapper.toInitiativeResponseDTO(initiative);
     }
 
 }

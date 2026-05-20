@@ -2,6 +2,8 @@ package com.example.springbootapi.controller;
 
 import com.example.springbootapi.dto.goal.GoalRequestDTO;
 import com.example.springbootapi.dto.goal.GoalResponseDTO;
+import com.example.springbootapi.dto.initiative.InitiativeRequestDTO;
+import com.example.springbootapi.dto.initiative.InitiativeResponseDTO;
 import com.example.springbootapi.model.Goal;
 import com.example.springbootapi.services.GoalService;
 import com.example.springbootapi.utils.mappers.GoalMapper;
@@ -60,5 +62,18 @@ public class GoalController {
     public ResponseEntity<GoalResponseDTO> deleteGoal(@PathVariable Long id) {
         goalService.deleteGoal(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/initiatives")
+    public ResponseEntity<InitiativeResponseDTO> saveInitiative(@PathVariable Long id, @Valid @RequestBody InitiativeRequestDTO initiativeDTO) {
+        InitiativeResponseDTO saved = goalService.addInitiative(id, initiativeDTO);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}/initiatives")
+                .buildAndExpand(saved.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(saved);
     }
 }
