@@ -25,9 +25,12 @@ public class InitiativeService {
     private final InitiativeMapper initiativeMapper;
     private final GoalRepository goalRepository;
 
-    // GET: /goals/{id}/initiatives
+    // GET: /initiatives?goalID=123
     @Transactional(readOnly = true)
-    public List<InitiativeResponseDTO> getInitiatives(Long id) {
+    public List<InitiativeResponseDTO> getInitiativesByGoal(Long id) {
+        if (!goalRepository.existsById(id)) {
+            throw new GoalNotFoundException(id);
+        }
         return initiativeRepository.findByGoalId(id)
                 .stream()
                 .map(initiativeMapper::toInitiativeResponseDTO)
@@ -47,9 +50,12 @@ public class InitiativeService {
 
     // PUT: /goals/{goalID}/initiatives/{initiativeID}
     @Transactional
-    public InitiativeResponseDTO updateInitiative(Long goalID, Long initiativeID, @Valid InitiativeRequestDTO requestDTO) {
-        Initiative existingInitiative = initiativeRepository.findByIdAndGoalId(initiativeID, goalID)
-                .orElseThrow(() -> new InitiativeNotFoundException(initiativeID));
+    public InitiativeResponseDTO updateInitiative(Long goalId, Long initiativeId, @Valid InitiativeRequestDTO requestDTO) {
+        if (!goalRepository.existsById(goalId)) {
+            throw new GoalNotFoundException(goalId);
+        }
+        Initiative existingInitiative = initiativeRepository.findByIdAndGoalId(initiativeId, goalId)
+                .orElseThrow(() -> new InitiativeNotFoundException(initiativeId));
         initiativeMapper.updateInitiativeFromDTO(requestDTO, existingInitiative);
         Initiative updatedInitiative = initiativeRepository.save(existingInitiative);
         return initiativeMapper.toInitiativeResponseDTO(updatedInitiative);
@@ -57,12 +63,12 @@ public class InitiativeService {
 
     // DELETE: /goals/{goalID}/initiatives/{initiativeID}
     @Transactional
-    public void deleteInitiative(Long id) {
-        try {
-            initiativeRepository.deleteById(id);
+    public void deleteInitiative(Long goalId, Long initiativeId) {
+        if (!goalRepository.existsById(goalId)) {
+            throw new GoalNotFoundException(goalId);
         }
-        catch (EmptyResultDataAccessException e) {
-            throw new InitiativeNotFoundException(id);
-        }
+        Initiative initiative = initiativeRepository.findByIdAndGoalId(initiativeId, goalId)
+                .orElseThrow(() -> new InitiativeNotFoundException(initiativeId));
+        initiativeRepository.delete(initiative);
     }
 }

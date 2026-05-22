@@ -70,27 +70,7 @@ public class GoalService {
     // DELETE: /goals/{id}
     @Transactional
     public void deleteGoal(Long id) {
-        try {
-            goalRepository.deleteById(id);
-        }
-        catch (EmptyResultDataAccessException e) {
-            throw new GoalNotFoundException(id);
-        }
+        Goal goal = goalRepository.findById(id).orElseThrow(() -> new GoalNotFoundException(id));
+        goalRepository.delete(goal);
     }
-
-    // POST: /goals/{id}/initiatives
-    @Transactional
-    public InitiativeResponseDTO addInitiative(Long id, @Valid InitiativeRequestDTO requestDTO) {
-        // Check if the goal exists
-        Goal goal = goalRepository.findById(id)
-                .orElseThrow(() -> new GoalNotFoundException(id));
-        // Convert Request DTO to Entity
-        Initiative initiative = initiativeMapper.toInitiative(requestDTO);
-        // Set Goal to the Initiative
-        initiative.setGoal(goal);
-        // Save Initiative
-        initiativeRepository.save(initiative);
-        return initiativeMapper.toInitiativeResponseDTO(initiative);
-    }
-
 }
