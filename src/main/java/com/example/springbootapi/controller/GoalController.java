@@ -6,6 +6,7 @@ import com.example.springbootapi.dto.initiative.InitiativeRequestDTO;
 import com.example.springbootapi.dto.initiative.InitiativeResponseDTO;
 import com.example.springbootapi.model.Goal;
 import com.example.springbootapi.services.GoalService;
+import com.example.springbootapi.services.InitiativeService;
 import com.example.springbootapi.utils.mappers.GoalMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
-    private final GoalMapper goalMapper;
+    private final InitiativeService initiativeService;
 
     @GetMapping
     public ResponseEntity<Page<GoalResponseDTO>> getAllGoals(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -66,14 +67,26 @@ public class GoalController {
 
     @PostMapping("/{id}/initiatives")
     public ResponseEntity<InitiativeResponseDTO> saveInitiative(@PathVariable Long id, @Valid @RequestBody InitiativeRequestDTO initiativeDTO) {
-        InitiativeResponseDTO saved = goalService.addInitiative(id, initiativeDTO);
+        InitiativeResponseDTO saved = initiativeService.createInitiative(id, initiativeDTO);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{id}/initiatives")
+                .path("/api/v1/initiatives/{id}")
                 .buildAndExpand(saved.id())
                 .toUri();
 
         return ResponseEntity.created(location).body(saved);
+    }
+
+    @PutMapping("/{goalId}/initiatives/{id}")
+    public ResponseEntity<InitiativeResponseDTO> updateInitiative(@PathVariable Long goalId, @PathVariable Long id, @Valid @RequestBody InitiativeRequestDTO initiativeRequestDTO) {
+        InitiativeResponseDTO initiativeResponseDTO = initiativeService.updateInitiative(goalId, id, initiativeRequestDTO);
+        return ResponseEntity.ok(initiativeResponseDTO);
+    }
+
+    @DeleteMapping("/{goalId}/initiatives/{id}")
+    public ResponseEntity<InitiativeResponseDTO> deleteInitiatives(@PathVariable Long goalId, @PathVariable Long id) {
+        initiativeService.deleteInitiative(goalId, id);
+        return ResponseEntity.noContent().build();
     }
 }
