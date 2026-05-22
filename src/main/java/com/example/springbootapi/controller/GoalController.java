@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/goals")
@@ -65,6 +66,12 @@ public class GoalController {
         return ResponseEntity.noContent().build();
     }
 
+    // Initiative CRUD Methods
+    @GetMapping
+    public ResponseEntity<List<InitiativeResponseDTO>> getInitiativesByGoal(@RequestParam Long goalId) {
+        List<InitiativeResponseDTO> initiative = initiativeService.getInitiativesByGoal(goalId);
+        return ResponseEntity.ok(initiative);
+    }
     @PostMapping("/{id}/initiatives")
     public ResponseEntity<InitiativeResponseDTO> saveInitiative(@PathVariable Long id, @Valid @RequestBody InitiativeRequestDTO initiativeDTO) {
         InitiativeResponseDTO saved = initiativeService.createInitiative(id, initiativeDTO);

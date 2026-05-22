@@ -25,7 +25,7 @@ public class InitiativeService {
     private final InitiativeMapper initiativeMapper;
     private final GoalRepository goalRepository;
 
-    // GET: /initiatives?goalID=123
+    // GET: /goals/{goalID}/initiatives
     @Transactional(readOnly = true)
     public List<InitiativeResponseDTO> getInitiativesByGoal(Long id) {
         if (!goalRepository.existsById(id)) {
